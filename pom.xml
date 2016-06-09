@@ -167,6 +167,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>brms-cep-demo-model</module>
+		<module>brms-cep-demo-commons</module>
 		<module>brms-cep-demo-rules</module>
 		<module>brms-cep-demo</module>
 	</modules>

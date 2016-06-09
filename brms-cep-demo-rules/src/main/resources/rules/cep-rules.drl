@@ -2,6 +2,7 @@ package org.jboss.ddoyle.brms.cep.demo.rules;
 
 import org.jboss.ddoyle.brms.cep.demo.model.BagScannedEvent;
 import org.jboss.ddoyle.brms.cep.demo.model.Location;
+import org.jboss.ddoyle.brms.cep.demo.commons.ClockTimeFormatter;
 
 declare BagScannedEvent
    @role(event)
@@ -9,32 +10,32 @@ declare BagScannedEvent
    @expires(5d)
 end
 
+
 rule "BagLostBeforeSorting"
 when 
 	$event1:BagScannedEvent(location == Location.CHECK_IN) from entry-point "BagEvents"
-	not($event2:BagScannedEvent(location == Location.SORTING, this != $event1, this.bagTag.id == $event1.bagTag.id, this after[0, 10m] $event1)) 
+	not($event2:BagScannedEvent(location == Location.SORTING, this != $event1, this.bagTag.id == $event1.bagTag.id, this after[0, 10m] $event1) from entry-point "BagEvents") 
 then
-	System.out.println("Bag lost before sorting: " + $event1.getBagTag().getId());
+	System.out.println("\nBag lost before sorting: " + $event1.getBagTag().getId());
 end
 
-/*
+
+
 rule "NumberOfBagsEnteredSortingInLastHour"
 when
 	$number: Number() from accumulate ($b:BagScannedEvent(location == Location.SORTING) over window:time(60m) from entry-point "BagEvents", count($b))
 then
-	System.out.println("\nNumber of bags that entered sorting in the last hour: " + $number + ". CurrentTime: " + drools.getWorkingMemory().getSessionClock().getCurrentTime());
+	System.out.println("\nNumber of bags that entered sorting in the last hour: " + $number + ". CurrentTime: " + ClockTimeFormatter.formatClockTime(drools.getWorkingMemory().getSessionClock().getCurrentTime()));
 end
-*/
 
 
-/*
+
 rule "Average weight of last 5 bags that entered Sorting stage."
 when
 	$number: Number() from accumulate ($b:BagScannedEvent(location == Location.SORTING) over window:length(5) from entry-point "BagEvents", average($b.getWeight()))
 then
-	System.out.println("\nAverage weight of last 5 bags: " + $number + ". CurrentTime: " + drools.getWorkingMemory().getSessionClock().getCurrentTime());
+	System.out.println("\nAverage weight of last 5 bags: " + $number + ". CurrentTime: " + ClockTimeFormatter.formatClockTime(drools.getWorkingMemory().getSessionClock().getCurrentTime()));
 end
-*/
 
 
 /*
@@ -42,7 +43,7 @@ end
  * If not, that average will not be taken into account.
  * So, we can create a warning rule for that state as well.
  */
- /*
+
 rule "Average processing time of last 5 bags in Sorting"
 enabled false
 when
@@ -52,17 +53,17 @@ when
 then
 	System.out.println("Average processing time of the last 5 bags: " + $number);
 end
-*/
 
 
-/*
+
+
 rule "SORTING event should have matching CHECK_IN event"
+dialect "mvel"
 when
-	//Lab 5: See the commment above the previous rule. Implement a rule that detects this situation and prints an error on the console.
+	$eventSorting: BagScannedEvent(location == Location.SORTING) from entry-point "BagEvents"
+	not BagScannedEvent(location == Location.CHECK_IN, bagTag.id == $eventSorting.bagTag.id) from entry-point "BagEvents"
 then
-	//	System.out.println("BIG ERROR, we don't have a matching event in CHECK_IN for the event in SORTING");
+	System.out.println("\nBIG ERROR, we don't have a matching event in CHECK_IN for the event in SORTING. BagTag ID: " + $eventSorting.bagTag.id);
 end
-*/
-
 
 

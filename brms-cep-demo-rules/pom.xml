@@ -14,6 +14,13 @@
 		<artifactId>brms-cep-demo-model</artifactId>
 		<scope>compile</scope>
 	</dependency>
+	<dependency>
+		<groupId>${project.groupId}</groupId>
+		<artifactId>brms-cep-demo-commons</artifactId>
+		<scope>compile</scope>
+	</dependency>
+	
+	
 	<!--
   	<dependency>
   		<groupId>org.kie</groupId>
